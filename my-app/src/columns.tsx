@@ -1,8 +1,6 @@
+import { type ColumnDef } from "@tanstack/react-table"
+import { Button } from "@/components/ui/button"
 
-import  { type ColumnDef } from "@tanstack/react-table"
-
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
 export type Subscription = {
   id: number
   name: string
@@ -12,25 +10,39 @@ export type Subscription = {
   billing_cycle: string
 }
 
-export const columns: ColumnDef<Subscription>[] = [
-  {
-    accessorKey: "name",
-    header: "Name",
-  },
-  {
-    accessorKey: "cost",
-    header: "Cost",
-  },
-  {
-    accessorKey: "billing_cycle",
-    header: "Billing Cycle",
-  },
-  {
-    accessorKey: "renews",
-    header: "Renews",
-  },
-  {
-    accessorKey: "category",
-    header: "Category",
-  },
-]
+export function makeColumns(onDelete: (id: number) => void): ColumnDef<Subscription>[] {
+  return [
+    {
+      accessorKey: "name",
+      header: "Name",
+    },
+    {
+      accessorKey: "cost",
+      header: "Cost",
+    },
+    {
+      accessorKey: "billing_cycle",
+      header: "Billing Cycle",
+    },
+    {
+      accessorKey: "renews",
+      header: "Renews",
+    },
+    {
+      accessorKey: "category",
+      header: "Category",
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onDelete(row.original.id)}
+        >
+          Delete
+        </Button>
+      ),
+    },
+  ]
+}
