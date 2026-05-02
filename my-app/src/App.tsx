@@ -1,6 +1,7 @@
 import { makeColumns, type Subscription } from "@/columns"
 import { DataTable } from "@/data-table"
 import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import supabase from "@/lib/supabase"
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -17,6 +18,12 @@ export default function DemoPage() {
   const [data, setData] = useState<Subscription[]>([])
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
+  const navigate = useNavigate()
+
+  async function handleLogout() {
+    await supabase.auth.signOut()
+    navigate("/login")
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -66,6 +73,9 @@ export default function DemoPage() {
   }
 
   async function handleAdd() {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
     const { data: inserted, error } = await supabase
       .from('subscriptions')
       .insert([{
@@ -73,7 +83,8 @@ export default function DemoPage() {
         cost: Number(form.cost),
         billing_cycle: form.billing_cycle,
         renews: form.renews,
-        category: form.category
+        category: form.category,
+        user_id: user.id
       }])
       .select()
 
@@ -88,10 +99,12 @@ export default function DemoPage() {
     <div className="container mx-auto py-10 max-w-4xl">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold">Subscriptions</h1>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button>Add Subscription</Button>
-          </DialogTrigger>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={handleLogout}>Log Out</Button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button>Add Subscription</Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add Subscription</DialogTitle>
@@ -134,7 +147,8 @@ export default function DemoPage() {
               <Button onClick={handleAdd}>Save</Button>
             </DialogFooter>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-4 mb-8">
