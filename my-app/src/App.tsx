@@ -18,6 +18,15 @@ export default function DemoPage() {
   const [data, setData] = useState<Subscription[]>([])
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
+  const [mutedIds, setMutedIds] = useState<Set<number>>(new Set())
+
+  function handleToggleMute(id: number) {
+    setMutedIds(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
   const navigate = useNavigate()
 
   async function handleLogout() {
@@ -54,6 +63,13 @@ export default function DemoPage() {
   }, 0)
 
   const activeSubs = data.length
+
+  const savedMonthly = data
+    .filter(sub => mutedIds.has(sub.id))
+    .reduce((sum, sub) => sum + getMonthlyCost(sub.cost, sub.billing_cycle), 0)
+
+  const ifCancelledMonthly = totalMonthly - savedMonthly
+  const yearlySavings = savedMonthly * 12
 
   const renewingSoon = (() => {
     const now = new Date()
@@ -174,7 +190,7 @@ export default function DemoPage() {
 
       <div className="flex items-center justify-between mb-4">
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium">Upcoming Subscriptions</p>
+          {renewingSoon.length > 0 && <p className="text-sm font-medium">Upcoming Subscriptions</p>}
           <div className="flex items-center gap-2 flex-wrap">
           {renewingSoon.map(sub => {
             const daysUntil = Math.ceil((new Date(sub.renews).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
@@ -189,7 +205,20 @@ export default function DemoPage() {
         </div>
       </div>
 
-      <DataTable columns={makeColumns(handleDelete)} data={data} />
+      {mutedIds.size > 0 && (
+        <div className="flex gap-4 text-sm mb-4 text-muted-foreground">
+          <span>Current: <span className="text-foreground font-medium">${totalMonthly.toFixed(2)}/mo</span></span>
+          <span>·</span>
+          <span>If cancelled: <span className="text-foreground font-medium">${ifCancelledMonthly.toFixed(2)}/mo</span></span>
+          <span>·</span>
+          <span>Yearly savings: <span className="text-green-600 font-medium">${yearlySavings.toFixed(2)}</span></span>
+        </div>
+      )}
+      <DataTable
+        columns={makeColumns(handleDelete, mutedIds, handleToggleMute)}
+        data={data}
+        getRowClassName={(row) => mutedIds.has(row.original.id) ? "opacity-40" : ""}
+      />
     </div>
   )
 }
