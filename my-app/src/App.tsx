@@ -58,7 +58,7 @@ export default function DemoPage() {
   }, [])
 
   function getMonthlyCost(cost: number, billing_cycle: string): number {
-    if (billing_cycle === "Yearly\n") return cost / 12
+    if (billing_cycle === "Yearly") return cost / 12
     return cost
   }
 
