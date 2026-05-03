@@ -6,10 +6,10 @@ export type Subscription = {
   id: number
   name: string
   cost: number
-  renews: Date
   category: string
   billing_cycle: string
   created_at: string
+  start_date: string
 }
 
 export function makeColumns(
@@ -40,8 +40,8 @@ export function makeColumns(
       header: "Billing Cycle",
     },
     {
-      accessorKey: "renews",
-      header: "Renews",
+      accessorKey: "start_date",
+      header: "Start Date",
     },
     {
       accessorKey: "category",
