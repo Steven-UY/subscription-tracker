@@ -111,6 +111,16 @@ export default function DemoPage() {
     })
   })()
 
+  async function handleUpdate(id: number, cost: number, billing_cycle: string) {
+    const { error } = await supabase
+      .from('subscriptions')
+      .update({ cost, billing_cycle })
+      .eq('id', id)
+    if (!error) {
+      setData(prev => prev.map(sub => sub.id === id ? { ...sub, cost, billing_cycle } : sub))
+    }
+  }
+
   async function handleDelete(id: number) {
     const { error } = await supabase.from('subscriptions').delete().eq('id', id)
     if (!error) setData(prev => prev.filter(sub => sub.id !== id))
@@ -138,7 +148,7 @@ export default function DemoPage() {
       setOpen(false)
     }
   }
-  
+
   return (
     <div className="container mx-auto py-10 max-w-4xl">
       <div className="flex items-center justify-between mb-6">
@@ -189,7 +199,7 @@ export default function DemoPage() {
               <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
               </DialogClose>
-              <Button onClick={handleAdd}>Save</Button>
+              <Button type="button" onClick={handleAdd}>Save</Button>
             </DialogFooter>
           </DialogContent>
           </Dialog>
@@ -252,7 +262,7 @@ export default function DemoPage() {
 
       {view === "table" ? (
         <DataTable
-          columns={makeColumns(handleDelete, mutedIds, handleToggleMute)}
+          columns={makeColumns(handleDelete, mutedIds, handleToggleMute, handleUpdate)}
           data={data}
           getRowClassName={(row) => mutedIds.has(row.original.id) ? "opacity-40" : ""}
         />
