@@ -18,7 +18,7 @@ export default function SignUp() {
     if (error) {
       setError(error.message)
     } else {
-      navigate("/")
+      navigate("/dashboard")
     }
   }
 
