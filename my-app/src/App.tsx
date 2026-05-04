@@ -12,6 +12,8 @@ import {
   Dialog, DialogTrigger, DialogContent,
   DialogHeader, DialogTitle, DialogFooter, DialogClose
 } from "@/components/ui/dialog"
+import { Moon, Sun } from "lucide-react"
+import { useTheme } from "@/hooks/useTheme"
 
 const emptyForm = { name: "", cost: "", billing_cycle: "Monthly", category: "", start_date: "" }
 
@@ -27,6 +29,7 @@ function getNextRenewal(start_date: string, billing_cycle: string): Date {
 }
 
 export default function DemoPage() {
+  const { dark, toggle: toggleTheme } = useTheme()
   const [data, setData] = useState<Subscription[]>([])
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
@@ -154,6 +157,9 @@ export default function DemoPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold">Subscriptions</h1>
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="icon" onClick={toggleTheme}>
+            {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
           <Button variant="outline" onClick={handleLogout}>Log Out</Button>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
